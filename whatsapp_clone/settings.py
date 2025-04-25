@@ -27,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(%53balxhz++@7co52*^=6h=bb*y173o3q$_b4h48l8sff_o-)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -44,8 +44,6 @@ INSTALLED_APPS = [
     'channels',      
     'chat',          
 ]
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'whatsapp_clone.settings')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
