@@ -1,0 +1,40 @@
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: #f4f6f8;
+  }
+  
+  .navbar {
+    background: #212121;
+    color: white;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    font-weight: bold;
+  }
+  
+  .home-wrapper {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+  
+  .home-wrapper h2 {
+    margin-bottom: 20px;
+  }
+  
+  .chat-preview {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+  }
+  

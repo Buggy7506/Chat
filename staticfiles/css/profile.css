@@ -1,0 +1,45 @@
+body {
+    background: #e3f2fd;
+    font-family: 'Roboto', sans-serif;
+    padding: 50px;
+  }
+  
+  .profile-card {
+    background: white;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    text-align: left;
+  }
+  
+  .profile-card img {
+    width: 100px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+  }
+  
+  .profile-card h3 {
+    margin-bottom: 10px;
+  }
+  
+  .profile-card p {
+    color: #666;
+
+  }
+
+
+  .profile-upload {
+    background: white;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    text-align: left;
+  }
+
+  .profile-upload h2 {
+    margin-bottom: 10px;
+  }
