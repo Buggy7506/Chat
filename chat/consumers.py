@@ -34,16 +34,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if 'file' in data:
             await self.save_message_file(self.user.username, self.friend_username, data['file'])
 
-
         if typing is not None:
-            await self.channel_layer.group_send({
-                "type": "typing_notification",
-                "sender": self.user.username,
-            })
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "typing_notification",
+                    "sender": self.user.username,
+                }
+            )
 
         elif message:
             await self.save_message(self.user.username, self.friend_username, message)
             await self.channel_layer.group_send(
+                self.room_group_name,
                 {
                     "type": "chat_message",
                     "message": message,
@@ -94,7 +97,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def add_reaction(self, message_id, emoji):
         message = Message.objects.get(id=message_id)
         reaction = MessageReaction.objects.create(message=message, user=self.user, emoji=emoji)
-        return self.channel_layer.group_send(
+        # send reaction after saving
+        from asgiref.sync import async_to_sync
+        async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
                 "type": "send_reaction",
@@ -109,7 +114,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = Message.objects.get(id=message_id)
         message.seen = True
         message.save()
-        return self.channel_layer.group_send(
+        # send seen notification after saving
+        from asgiref.sync import async_to_sync
+        async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
                 "type": "message_seen",
@@ -119,3 +126,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     def get_room_name(self, user1, user2):
         return "_".join(sorted([user1, user2]))
+
+    @database_sync_to_async
+    def save_message_file(self, sender, receiver, file_data):
+        # You need to define how you store file_data
+        # This is just a placeholder
+        sender_user = User.objects.get(username=sender)
+        receiver_user = User.objects.get(username=receiver)
+        Message.objects.create(sender=sender_user, receiver=receiver_user, file=file_data)
