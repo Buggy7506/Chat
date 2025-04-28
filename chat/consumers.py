@@ -92,7 +92,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, sender, receiver, message):
         sender_user = User.objects.get(username=sender)
         receiver_user = User.objects.get(username=receiver)
-        return Message.objects.create(sender=sender_user, receiver=receiver_user, content=message)
+        return Message.objects.create(sender=sender_user, receiver=receiver_user, content=message).id
 
     @database_sync_to_async
     def add_reaction(self, message_id, emoji):
