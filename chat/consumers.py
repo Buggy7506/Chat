@@ -1,4 +1,4 @@
-import json
+ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import User
 from .models import Message, MessageReaction
@@ -31,25 +31,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message_id = data.get("message_id")
         seen = data.get("seen")
 
-        if 'file' in data:
-            await self.save_message_file(self.user.username, self.friend_username, data['file'])
-
-        if typing is not None:
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    "type": "typing_notification",
-                    "sender": self.user.username,
-                }
-            )
-
-        elif message:
+        if message:
             await self.save_message(self.user.username, self.friend_username, message)
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     "type": "chat_message",
                     "message": message,
+                    "sender": self.user.username,
+                }
+            )
+
+        elif typing is not None:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "typing_notification",
+                    "typing": typing,
                     "sender": self.user.username,
                 }
             )
@@ -69,10 +67,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def typing_notification(self, event):
         await self.send(text_data=json.dumps({
-        "type": "typing",
-        "typing": True if event.get("typing") else False,
-        "sender": event["sender"],
-    }))
+            "type": "typing",
+            "typing": event["typing"],
+            "sender": event["sender"],
+        }))
 
     async def send_reaction(self, event):
         await self.send(text_data=json.dumps({
@@ -92,15 +90,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, sender, receiver, message):
         sender_user = User.objects.get(username=sender)
         receiver_user = User.objects.get(username=receiver)
-        Message.objects.create(sender=sender_user, receiver=receiver_user, content=message)
+        return Message.objects.create(sender=sender_user, receiver=receiver_user, content=message)
 
     @database_sync_to_async
     def add_reaction(self, message_id, emoji):
         message = Message.objects.get(id=message_id)
-        reaction = MessageReaction.objects.create(message=message, user=self.user, emoji=emoji)
-        # send reaction after saving
-        from asgiref.sync import async_to_sync
-        async_to_sync(self.channel_layer.group_send)(
+        MessageReaction.objects.create(message=message, user=self.user, emoji=emoji)
+        return self.channel_layer.group_send(
             self.room_group_name,
             {
                 "type": "send_reaction",
@@ -115,9 +111,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = Message.objects.get(id=message_id)
         message.seen = True
         message.save()
-        # send seen notification after saving
-        from asgiref.sync import async_to_sync
-        async_to_sync(self.channel_layer.group_send)(
+        return self.channel_layer.group_send(
             self.room_group_name,
             {
                 "type": "message_seen",
@@ -127,11 +121,3 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     def get_room_name(self, user1, user2):
         return "_".join(sorted([user1, user2]))
-
-    @database_sync_to_async
-    def save_message_file(self, sender, receiver, file_data):
-        # You need to define how you store file_data
-        # This is just a placeholder
-        sender_user = User.objects.get(username=sender)
-        receiver_user = User.objects.get(username=receiver)
-        Message.objects.create(sender=sender_user, receiver=receiver_user, file=file_data)
