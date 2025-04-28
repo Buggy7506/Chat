@@ -52,7 +52,8 @@
   const sendBtn = document.getElementById('sendBtn');
 
   const chatSocket = new WebSocket(
-    'ws://' + window.location.host + '/ws/chat/' + friend + '/');
+    (window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host + '/ws/chat/' + friend + '/'
+  );
 
   let typingTimeout;
 
@@ -60,16 +61,25 @@
   function sendMessage() {
     const message = input.value.trim();
     if (message === '') return;
-    chatSocket.send(JSON.stringify({ message }));
-    input.value = "";
+
+    if (chatSocket.readyState === WebSocket.OPEN) {
+      chatSocket.send(JSON.stringify({ message }));
+      input.value = "";
+    } else {
+      console.error("WebSocket not open. ReadyState: " + chatSocket.readyState);
+    }
   }
 
   // === TYPING INDICATOR ===
   input.addEventListener('input', function () {
     clearTimeout(typingTimeout);
-    chatSocket.send(JSON.stringify({ typing: true }));
+    if (chatSocket.readyState === WebSocket.OPEN) {
+      chatSocket.send(JSON.stringify({ typing: true }));
+    }
     typingTimeout = setTimeout(() => {
-      chatSocket.send(JSON.stringify({ typing: false }));
+      if (chatSocket.readyState === WebSocket.OPEN) {
+        chatSocket.send(JSON.stringify({ typing: false }));
+      }
     }, 1000);
   });
 
@@ -117,7 +127,19 @@
       typingIndicator.innerText = data.typing ? `${data.sender} is typing...` : '';
     }
   };
+
+  // === SOCKET ERROR HANDLING ===
+  chatSocket.onerror = function(e) {
+    console.error('WebSocket error:', e);
+  };
+
+  chatSocket.onclose = function(e) {
+    console.warn('WebSocket closed unexpectedly:', e);
+  };
 </script>
+
+</body>
+</html>
 
 </body>
 </html>
