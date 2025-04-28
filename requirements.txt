@@ -20,6 +20,7 @@ djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0
 fonttools==4.57.0
 gunicorn==23.0.0
+uvicorn
 hyperlink==21.0.0
 idna==3.10
 incremental==24.7.2
