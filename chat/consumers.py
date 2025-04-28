@@ -32,8 +32,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         seen = data.get("seen")
 
         if message:
-            message_id = await
-            await self.save_message(self.user.username, self.friend_username, message)
+            message_id = await self.save_message(self.user.username, self.friend_username, message)
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
