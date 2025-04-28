@@ -87,39 +87,39 @@ picker.on('emoji', emoji => {
 });
 
 // WebSocket Event Handling
-chatSocket.onmessage = function(e) {
-  const data = JSON.parse(e.data);
+ chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
 
-  switch (data.type) {
-    case "message":
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `message ${data.sender === username ? 'right' : 'left'}`;
-      msgDiv.innerHTML = `
-        <strong>${data.sender}</strong><br>
-        ${data.message}
-        <span class="timestamp">${new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</span>
-      `;
-      chatBox.appendChild(msgDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-      break;
+    if (data.type === 'message') {
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message', data.sender === username ? 'right' : 'left');
 
-    case "typing":
-      typingIndicator.style.display = data.typing ? 'block' : 'none';
-      typingIndicator.innerText = data.typing ? `${data.sender} is typing...` : '';
-      break;
+        const now = new Date();
+        const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    case "reaction":
-      // handle reaction if you want
-      break;
+        msgDiv.innerHTML = `
+            <strong>${data.sender}</strong><br>
+            ${data.message}
+            <span class="timestamp">${time}</span>
+        `;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
 
-    case "seen":
-      const seenSpan = document.getElementById('seen-status-' + data.message_id);
-      if (seenSpan) seenSpan.innerText = 'Seen';
-      break;
+    if (data.type === 'typing') {
+        if (data.typing) {
+            typingIndicator.style.display = 'block';
+            typingIndicator.innerText = `${data.sender} is typing...`;
+        } else {
+            typingIndicator.style.display = 'none';
+            typingIndicator.innerText = '';
+        }
+    }
 
-    default:
-      console.warn('Unknown data type:', data.type);
-  }
+    if (data.type === 'seen') {
+        const seenSpan = document.getElementById('seen-status-' + data.message_id);
+        if (seenSpan) seenSpan.textContent = 'Seen';
+    }
 };
 
 chatSocket.onerror = e => console.error('WebSocket error:', e);
