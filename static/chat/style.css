@@ -153,4 +153,9 @@ body, html {
     font-size: 12px;
     padding: 8px 15px;
   }
+   }
+.seen-status {
+    font-size: 0.7em;
+    color: grey;
+    margin-left: 5px;
 }
