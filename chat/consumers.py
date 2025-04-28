@@ -32,6 +32,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         seen = data.get("seen")
 
         if message:
+            message_id = await
             await self.save_message(self.user.username, self.friend_username, message)
             await self.channel_layer.group_send(
                 self.room_group_name,
@@ -39,6 +40,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "type": "chat_message",
                     "message": message,
                     "sender": self.user.username,
+                    "message_id": message_id
                 }
             )
 
@@ -60,10 +62,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
-            "type": "message",
-            "message": event["message"],
-            "sender": event["sender"],
-        }))
+        "type": "message",
+        "message": event["message"],
+        "sender": event["sender"],
+        "message_id": event["message_id"],
+    }))
 
     async def typing_notification(self, event):
         await self.send(text_data=json.dumps({
