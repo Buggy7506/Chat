@@ -68,10 +68,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         }))
 
     async def typing_notification(self, event):
-        await self.send(text_data=json.dumps({
-            "type": "typing",
-            "sender": event["sender"],
-        }))
+    await self.send(text_data=json.dumps({
+        "type": "typing",
+        "typing": True if event.get("typing") else False,
+        "sender": event["sender"],
+    }))
 
     async def send_reaction(self, event):
         await self.send(text_data=json.dumps({
