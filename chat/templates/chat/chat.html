@@ -1,9 +1,11 @@
-{% load static %}
+ {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Chat</title>
   <link rel="stylesheet" href="{% static 'chat/style.css' %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
@@ -29,117 +31,100 @@
   </div>
 
   <!-- Typing Indicator -->
-  <p id="typing-indicator" style="display: none;"></p>
+  <p id="typing-indicator" style="display:none;"></p>
 
   <!-- Input Area -->
   <div class="input-box">
     <input type="text" id="messageInput" placeholder="Type a message...">
-    <button id="sendBtn" onclick="sendMessage()">Send</button>
+    <button id="sendBtn">Send</button>
   </div>
 
 </div>
 
-<!-- Emoji Picker Script -->
 <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.2/dist/index.min.js"></script>
 
 <script>
-  // === SETUP ===
-  const username = "{{ request.user.username }}";
-  const friend = "{{ friend_username }}";
-  const chatBox = document.getElementById('chat-box');
-  const input = document.getElementById('messageInput');
-  const typingIndicator = document.getElementById('typing-indicator');
-  const sendBtn = document.getElementById('sendBtn');
+const username = "{{ request.user.username }}";
+const friend = "{{ friend_username }}";
+const chatBox = document.getElementById('chat-box');
+const input = document.getElementById('messageInput');
+const typingIndicator = document.getElementById('typing-indicator');
+const sendBtn = document.getElementById('sendBtn');
 
-  const chatSocket = new WebSocket(
-    (window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host + '/ws/chat/' + friend + '/'
-  );
+const chatSocket = new WebSocket(
+  (window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host + '/ws/chat/' + friend + '/'
+);
 
-  let typingTimeout;
+let typingTimeout;
 
-  // === MESSAGE SENDING ===
-  function sendMessage() {
-    const message = input.value.trim();
-    if (message === '') return;
-
-    if (chatSocket.readyState === WebSocket.OPEN) {
-      chatSocket.send(JSON.stringify({ message }));
-      input.value = "";
-    } else {
-      console.error("WebSocket not open. ReadyState: " + chatSocket.readyState);
-    }
+// Send Message
+sendBtn.onclick = function() {
+  const message = input.value.trim();
+  if (message !== '') {
+    chatSocket.send(JSON.stringify({ message }));
+    input.value = "";
   }
+};
 
-  // === TYPING INDICATOR ===
-  input.addEventListener('input', function () {
-    clearTimeout(typingTimeout);
-    if (chatSocket.readyState === WebSocket.OPEN) {
-      chatSocket.send(JSON.stringify({ typing: true }));
-    }
-    typingTimeout = setTimeout(() => {
-      if (chatSocket.readyState === WebSocket.OPEN) {
-        chatSocket.send(JSON.stringify({ typing: false }));
-      }
-    }, 1000);
-  });
+// Typing Indicator
+input.addEventListener('input', () => {
+  clearTimeout(typingTimeout);
+  chatSocket.send(JSON.stringify({ typing: true }));
 
-  // === EMOJI PICKER ===
-  const picker = new EmojiButton();
-  sendBtn.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    picker.togglePicker(sendBtn);
-  });
+  typingTimeout = setTimeout(() => {
+    chatSocket.send(JSON.stringify({ typing: false }));
+  }, 1000);
+});
 
-  picker.on('emoji', emoji => {
-    input.value += emoji;
-  });
+// Emoji Picker
+const picker = new EmojiButton();
+sendBtn.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  picker.togglePicker(sendBtn);
+});
+picker.on('emoji', emoji => {
+  input.value += emoji;
+});
 
-  // === SOCKET ON MESSAGE ===
-  chatSocket.onmessage = function(e) {
-    const data = JSON.parse(e.data);
+// WebSocket Event Handling
+chatSocket.onmessage = function(e) {
+  const data = JSON.parse(e.data);
 
-    // Handle message display
-    if (data.message) {
+  switch (data.type) {
+    case "message":
       const msgDiv = document.createElement('div');
-      msgDiv.classList.add('message', data.sender === username ? 'right' : 'left');
-
-      const now = new Date();
-      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
+      msgDiv.className = `message ${data.sender === username ? 'right' : 'left'}`;
       msgDiv.innerHTML = `
         <strong>${data.sender}</strong><br>
         ${data.message}
-        <span class="timestamp">${time}</span>
+        <span class="timestamp">${new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</span>
       `;
       chatBox.appendChild(msgDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
-    }
+      break;
 
-    // Handle seen status update
-    if (data.message_id) {
-      const seenSpan = document.getElementById('seen-status-' + data.message_id);
-      if (seenSpan) seenSpan.textContent = 'Seen';
-    }
-
-    // Handle typing indicator
-    if (data.typing !== undefined) {
+    case "typing":
       typingIndicator.style.display = data.typing ? 'block' : 'none';
       typingIndicator.innerText = data.typing ? `${data.sender} is typing...` : '';
-    }
-  };
+      break;
 
-  // === SOCKET ERROR HANDLING ===
-  chatSocket.onerror = function(e) {
-    console.error('WebSocket error:', e);
-  };
+    case "reaction":
+      // handle reaction if you want
+      break;
 
-  chatSocket.onclose = function(e) {
-    console.warn('WebSocket closed unexpectedly:', e);
-  };
+    case "seen":
+      const seenSpan = document.getElementById('seen-status-' + data.message_id);
+      if (seenSpan) seenSpan.innerText = 'Seen';
+      break;
+
+    default:
+      console.warn('Unknown data type:', data.type);
+  }
+};
+
+chatSocket.onerror = e => console.error('WebSocket error:', e);
+chatSocket.onclose = e => console.warn('WebSocket closed unexpectedly:', e);
 </script>
-
-</body>
-</html>
 
 </body>
 </html>
