@@ -2,36 +2,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Chat Dashboard</title>
-  <link rel="stylesheet" href="{% static 'chat/style.css' %}">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Chat Home</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
+    <div class="background-overlay">
+        <div class="top-nav">
+            <a href="{% url 'profile' %}">Profile</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
 
-<div class="container">
-  <div class="profile-links">
-    <a href="/profile">Profile</a>
-    <a href="/logout">Logout</a>
-  </div>
+        <div class="container">
+            <div class="header">
+                <h1>Welcome, {{ user.username }}</h1>
+                <p>Select someone to chat with:</p>
+            </div>
 
-  <div class="header">
-    <h1>Welcome, {{ user.username }}</h1>
-    <p>Select someone to chat with:</p>
-  </div>
+            <div class="user-list">
+                <ul>
+                    {% for user in users %}
+                        <li onclick="location.href='/chat/{{ user.username }}'">{{ user.username }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
 
-  <div class="user-list">
-    <ul>
-      {% for user in users %}
-        <li onclick="location.href='/chat/{{ user.username }}'">{{ user.username }}</li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <div class="footer">
-    Chats
-  </div>
-</div>
-
+            <div class="footer">
+                Chats
+            </div>
+        </div>
+    </div>
 </body>
-</html>
+</html> 
