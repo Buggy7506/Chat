@@ -13,8 +13,7 @@ from django.db.models import Q, Count
 
 def home(request):
     if request.user.is_authenticated:
-        users =
-User.objects.exclude(username=request.user.username)
+        users = User.objects.exclude(username=request.user.username)
     user_data = []
 for u in users:
         return render(request, 'chat/home.html',
