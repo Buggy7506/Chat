@@ -9,13 +9,13 @@ from django.contrib.auth.decorators import login_required
 from .forms import CustomUserCreationForm
 from .models import Profile
 from .models import Message
+from django.db.models import Q, Count
 
 def home(request):
     if request.user.is_authenticated:
         users = User.objects.exclude(username=request.user.username)
         return render(request, 'chat/home.html', {'users': users})
     return redirect('login')
-    from django.db.models import Q, Count
 
 users = User.objects.exclude(username=request.user.username)
 user_data = []
