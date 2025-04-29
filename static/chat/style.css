@@ -1,174 +1,143 @@
- /* Reset default browser styles */
-body, html {
+ /* Reset basic browser styles */
+* {
   margin: 0;
   padding: 0;
-  height: 100%;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #121212;
-  color: #ffffff;
+  box-sizing: border-box;
 }
 
-/* Container for the whole chat */
+/* Main wrapper to make full height */
+.chat-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f0f2f5;
+}
+
+/* Main chat container */
 .chat-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 100%;
-    max-width: 600px;
-    margin: auto;
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-    background-color: #f8f8f8;
+  width: 100%;
+  max-width: 600px;
+  height: 100vh;
+  background: white;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Chat Header */
 .chat-header {
-  background-color: #1f1f1f;
-  padding: 15px;
+  padding: 16px;
+  background-color: #075E54;
+  color: white;
   font-size: 20px;
   font-weight: bold;
   text-align: center;
-  border-bottom: 1px solid #2e2e2e;
 }
 
-/* Chat Box - messages area */
-#chat-box {
+/* Chat Box for messages */
+.chat-box {
   flex: 1;
+  padding: 10px;
   overflow-y: auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  background-color: #181818;
+  background-color: #e5ddd5;
 }
 
-/* Message styling */
+/* Individual message bubbles */
 .message {
   max-width: 70%;
-  padding: 12px 15px;
-  border-radius: 15px;
+  margin: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #ffffff;
   position: relative;
   word-wrap: break-word;
-  font-size: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* Sent message (current user) */
+/* Messages from self (right side) */
 .message.right {
+  background-color: #dcf8c6;
   align-self: flex-end;
-  background: #00bfa6;
-  color: #000;
   text-align: right;
 }
 
-/* Received message (friend) */
+/* Messages from friend (left side) */
 .message.left {
+  background-color: white;
   align-self: flex-start;
-  background: #2c2c2c;
+  text-align: left;
 }
 
-/* Timestamp inside message */
+/* Timestamp under message */
 .timestamp {
-  font-size: 10px;
-  color: #cccccc;
   display: block;
-  margin-top: 5px;
+  font-size: 0.75rem;
+  color: gray;
+  margin-top: 4px;
 }
 
-/* Seen/Delivered Status */
-#chat-box span[id^="seen-status-"] {
-  font-size: 10px;
-  margin-left: 8px;
-  color: #888888;
+/* Seen/Delivered indicator */
+.seen-status {
+  font-size: 0.7rem;
+  color: gray;
+  margin-left: 5px;
 }
 
-/* Typing Indicator */
-#typing-indicator {
-  font-style: italic;
-  margin: 10px;
-  font-size: 14px;
-  color: #cccccc;
+/* Typing indicator */
+.typing-indicator {
+  font-size: 0.9rem;
+  color: #888;
+  margin: 8px 12px;
 }
 
-/* Input Area */
+/* Input area at the bottom */
 .input-box {
   display: flex;
-  padding: 15px;
-  background-color: #1f1f1f;
-  border-top: 1px solid #2e2e2e;
+  padding: 10px;
+  background-color: #f1f1f1;
 }
 
-.input-box input {
+.input-box input[type="text"] {
   flex: 1;
-  padding: 10px 15px;
+  padding: 10px;
+  font-size: 16px;
   border: none;
   border-radius: 20px;
+  outline: none;
+  background-color: #fff;
   margin-right: 10px;
-  background-color: #2e2e2e;
-  color: white;
-  font-size: 14px;
-}
-
-.input-box input::placeholder {
-  color: #aaaaaa;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .input-box button {
-  padding: 10px 20px;
-  background-color: #00bfa6;
+  padding: 10px 16px;
+  font-size: 16px;
+  background-color: #128C7E;
+  color: white;
   border: none;
   border-radius: 20px;
-  color: black;
-  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s;
 }
 
 .input-box button:hover {
-  background-color: #1de9b6;
+  background-color: #075E54;
 }
 
-/* Scrollbar styling for chat box */
-#chat-box::-webkit-scrollbar {
-  width: 6px;
+/* Scrollbar styles */
+.chat-box::-webkit-scrollbar {
+  width: 5px;
 }
 
-#chat-box::-webkit-scrollbar-thumb {
-  background-color: #555;
+.chat-box::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
   border-radius: 10px;
 }
 
-#chat-box::-webkit-scrollbar-thumb:hover {
-  background: #777;
-}
-
-/* Responsive adjustments */
+/* Mobile responsiveness */
 @media (max-width: 600px) {
-  .message {
-    max-width: 85%;
+  .chat-container {
+    max-width: 100%;
+    height: 100vh;
   }
-
-  .chat-header {
-    font-size: 18px;
-  }
-
-  .input-box input {
-    font-size: 12px;
-  }
-
-  .input-box button {
-    font-size: 12px;
-    padding: 8px 15px;
-  }
-   }
-.seen-status {
-    font-size: 0.7em;
-    color: grey;
-    margin-left: 5px;
 }
