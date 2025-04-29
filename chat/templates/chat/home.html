@@ -8,14 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
- {% for entry in user_data %}
-  <li onclick="location.href='/chat/{{ entry.user.username }}'">
-    {{ entry.user.username }}
-    {% if entry.unread > 0 %}
-      <span class="unread-badge">{{ entry.unread }}</span>
-    {% endif %}
-  </li>
-{% endfor %}
     <div class="background-overlay">
         <div class="top-nav">
             <a href="{% url 'profile' %}">Profile</a>
@@ -35,6 +27,14 @@
                     {% endfor %}
                 </ul>
             </div>
+            {% for entry in user_data %}
+  <li onclick="location.href='/chat/{{ entry.user.username }}'">
+    {{ entry.user.username }}
+    {% if entry.unread > 0 %}
+      <span class="unread-badge">{{ entry.unread }}</span>
+    {% endif %}
+  </li>
+{% endfor %}
 
             <div class="footer">
                 Chats
