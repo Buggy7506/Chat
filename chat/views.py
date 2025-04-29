@@ -13,12 +13,14 @@ from django.db.models import Q, Count
 
 def home(request):
     if request.user.is_authenticated:
-        users = User.objects.exclude(username=request.user.username)
-        users = User.objects.exclude(username=request.user.username)
+        users =
+User.objects.exclude(username=request.user.username)
     user_data = []
 for u in users:
-        return render(request, 'chat/home.html', {'users': users})
-    return redirect('login')
+        return render(request, 'chat/home.html',
+{'users': users})
+    else 
+        return redirect('login')
 
     unread = Message.objects.filter(sender=u, receiver=request.user, seen=False).count()
     user_data.append({'user': u, 'unread': unread})
