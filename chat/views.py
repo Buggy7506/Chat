@@ -11,13 +11,14 @@ from .models import Profile
 from .models import Message
 from django.db.models import Q, Count
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+
 def home(request):
     if request.user.is_authenticated:
         users = User.objects.exclude(username=request.user.username)
-    user_data = []
-for u in users:
-    return render(request, 'chat/home.html',
-{'users': users})
+        return render(request, 'chat/home.html', {'users': users})
+    else:
         return redirect('login')
 
 unread = Message.objects.filter(sender=u, receiver=request.user, seen=False).count()
