@@ -11,19 +11,16 @@ from .models import Profile
 from .models import Message
 from django.db.models import Q, Count
 
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-
 def home(request):
     if request.user.is_authenticated:
         users = User.objects.exclude(username=request.user.username)
-    for u in users:
-        unread = Message.objects.filter(sender=u, receiver=request.user, seen=False).count()
-        user_data.append({'user': u, 'unread': unread})
-        return render(request, 'chat/home.html', {'users': users})
+        user_data = []
+        for u in users:
+            unread = Message.objects.filter(sender=u, receiver=request.user, seen=False).count()
+            user_data.append({'user': u, 'unread': unread})
+        return render(request, 'chat/home.html', {'users': user_data})
     else:
         return redirect('login')
-
 def signup_view(request):
     if request.method == 'POST':
       if request.method == 'POST':
