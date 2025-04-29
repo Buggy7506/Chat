@@ -16,10 +16,10 @@ def home(request):
         users = User.objects.exclude(username=request.user.username)
         users = User.objects.exclude(username=request.user.username)
     user_data = []
+for u in users:
     return render(request, 'chat/home.html', {'users': users})
     return redirect('login')
 
-for u in users:
     unread = Message.objects.filter(sender=u, receiver=request.user, seen=False).count()
     user_data.append({'user': u, 'unread': unread})
 
