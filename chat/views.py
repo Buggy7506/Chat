@@ -20,7 +20,7 @@ for u in users:
 {'users': users})
         return redirect('login')
 
-    unread = Message.objects.filter(sender=u, receiver=request.user, seen=False).count()
+unread = Message.objects.filter(sender=u, receiver=request.user, seen=False).count()
     user_data.append({'user': u, 'unread': unread})
 
 def signup_view(request):
