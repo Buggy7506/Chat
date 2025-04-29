@@ -9,40 +9,41 @@
 </head>
 <body>
 
-<div class="chat-container">
+<div class="chat-wrapper">
+  <div class="chat-container">
 
-  <!-- Chat Header -->
-  <div class="chat-header">
-    Chat with {{ friend_username }}
+    <!-- Chat Header -->
+    <div class="chat-header">
+      Chat with {{ friend_username }}
+    </div>
+
+    <!-- Messages Box -->
+    <div id="chat-box" class="chat-box">
+      {% for msg in messages %}
+        <div class="message {% if msg.sender == request.user %}right{% else %}left{% endif %}">
+          <strong>{{ msg.sender.username }}</strong><br>
+          {{ msg.content }}
+          <span class="timestamp">{{ msg.timestamp|time:"H:i" }}</span>
+          <span class="seen-status" id="seen-status-{{ msg.id }}">
+            {% if msg.seen %}Seen{% else %}Delivered{% endif %}
+          </span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Typing Indicator -->
+    <p id="typing-indicator" class="typing-indicator" style="display:none;"></p>
+
+    <!-- Input Area -->
+    <div class="input-box">
+      <input type="text" id="messageInput" placeholder="Type a message...">
+      <button id="sendBtn">Send</button>
+    </div>
+
   </div>
-
-  <!-- Messages Box -->
-  <div id="chat-box">
-    {% for msg in messages %}
-      <div class="message {% if msg.sender == request.user %}right{% else %}left{% endif %}">
-        <strong>{{ msg.sender.username }}</strong><br>
-        {{ msg.content }}
-        <span class="timestamp">{{ msg.timestamp|time:"H:i" }}</span>
-        <span id="seen-status-{{ msg.id }}">
-          {% if msg.seen %}Seen{% else %}Delivered{% endif %}
-        </span>
-      </div>
-    {% endfor %}
-  </div>
-
-  <!-- Typing Indicator -->
-  <p id="typing-indicator" style="display:none;"></p>
-
-  <!-- Input Area -->
-  <div class="input-box">
-    <input type="text" id="messageInput" placeholder="Type a message...">
-    <button id="sendBtn">Send</button>
-  </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.2/dist/index.min.js"></script>
-
 <script>
 const username = "{{ request.user.username }}";
 const friend = "{{ friend_username }}";
@@ -57,7 +58,6 @@ const chatSocket = new WebSocket(
 
 let typingTimeout;
 
-// Send Message
 sendBtn.onclick = function() {
   const message = input.value.trim();
   if (message !== '') {
@@ -66,17 +66,14 @@ sendBtn.onclick = function() {
   }
 };
 
-// Typing Indicator
 input.addEventListener('input', () => {
   clearTimeout(typingTimeout);
   chatSocket.send(JSON.stringify({ typing: true }));
-
   typingTimeout = setTimeout(() => {
     chatSocket.send(JSON.stringify({ typing: false }));
   }, 1000);
 });
 
-// Emoji Picker
 const picker = new EmojiButton();
 sendBtn.addEventListener('contextmenu', e => {
   e.preventDefault();
@@ -86,47 +83,37 @@ picker.on('emoji', emoji => {
   input.value += emoji;
 });
 
-// WebSocket Event Handling
- chatSocket.onmessage = function(e) {
-    const data = JSON.parse(e.data);
+chatSocket.onmessage = function(e) {
+  const data = JSON.parse(e.data);
 
-    if (data.type === 'message') {
-    if (data.type === 'message') {
+  if (data.type === 'message') {
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('message', data.sender === username ? 'right' : 'left');
-
     const now = new Date();
     const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
     msgDiv.innerHTML = `
-        <strong>${data.sender}</strong><br>
-        ${data.message}
-        <span class="timestamp">${time}</span>
-        <span class="seen-status" id="seen-status-${data.message_id}">Delivered</span>
+      <strong>${data.sender}</strong><br>
+      ${data.message}
+      <span class="timestamp">${time}</span>
+      <span class="seen-status" id="seen-status-${data.message_id}">Delivered</span>
     `;
     chatBox.appendChild(msgDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    // If I'm the recipient, immediately tell server I have seen it
     if (data.sender !== username) {
-        chatSocket.send(JSON.stringify({ seen: true, message_id: data.message_id }));
+      chatSocket.send(JSON.stringify({ seen: true, message_id: data.message_id }));
     }
-}
+  }
 
-    if (data.type === 'typing') {
-        if (data.typing) {
-            typingIndicator.style.display = 'block';
-            typingIndicator.innerText = `${data.sender} is typing...`;
-        } else {
-            typingIndicator.style.display = 'none';
-            typingIndicator.innerText = '';
-        }
-    }
+  if (data.type === 'typing') {
+    typingIndicator.style.display = data.typing ? 'block' : 'none';
+    typingIndicator.innerText = data.typing ? `${data.sender} is typing...` : '';
+  }
 
-    if (data.type === 'seen') {
-        const seenSpan = document.getElementById('seen-status-' + data.message_id);
-        if (seenSpan) seenSpan.textContent = 'Seen';
-    }
+  if (data.type === 'seen') {
+    const seenSpan = document.getElementById('seen-status-' + data.message_id);
+    if (seenSpan) seenSpan.textContent = 'Seen';
+  }
 };
 
 chatSocket.onerror = e => console.error('WebSocket error:', e);
