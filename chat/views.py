@@ -17,7 +17,7 @@ from django.contrib.auth.models import User
 def home(request):
     if request.user.is_authenticated:
         users = User.objects.exclude(username=request.user.username)
-        for u in users:
+    for u in users:
         return render(request, 'chat/home.html', {'users': users})
     else:
         return redirect('login')    
