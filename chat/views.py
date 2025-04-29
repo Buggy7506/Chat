@@ -16,7 +16,7 @@ def home(request):
         users = User.objects.exclude(username=request.user.username)
         users = User.objects.exclude(username=request.user.username)
     user_data = []
-        return render(request, 'chat/home.html', {'users': users})
+    return render(request, 'chat/home.html', {'users': users})
     return redirect('login')
 
 for u in users:
