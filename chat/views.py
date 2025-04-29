@@ -20,6 +20,7 @@ def home(request):
         return render(request, 'chat/home.html', {'users': users})
     else:
         return redirect('login')
+for u in users:    
 
 unread = Message.objects.filter(sender=u, receiver=request.user, seen=False).count()
 user_data.append({'user': u, 'unread': unread})
