@@ -22,8 +22,8 @@ def home(request):
         return redirect('login')
 for u in users:    
 
-unread = Message.objects.filter(sender=u, receiver=request.user, seen=False).count()
-user_data.append({'user': u, 'unread': unread})
+        unread = Message.objects.filter(sender=u, receiver=request.user, seen=False).count()
+        user_data.append({'user': u, 'unread': unread})
 
 def signup_view(request):
     if request.method == 'POST':
