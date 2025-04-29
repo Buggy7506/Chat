@@ -1,4 +1,4 @@
-{% load static %}
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,19 +22,16 @@
 
             <div class="user-list">
                 <ul>
-                    {% for user in users %}
-                        <li onclick="location.href='/chat/{{ user.username }}'">{{ user.username }}</li>
+                    {% for entry in users %}
+                        <li onclick="location.href='/chat/{{ entry.user.username }}'">
+                            {{ entry.user.username }}
+                            {% if entry.unread > 0 %}
+                                <span class="unread-badge">{{ entry.unread }}</span>
+                            {% endif %}
+                        </li>
                     {% endfor %}
                 </ul>
             </div>
-            {% for entry in user_data %}
-  <li onclick="location.href='/chat/{{ entry.user.username }}'">
-    {{ entry.user.username }}
-    {% if entry.unread > 0 %}
-      <span class="unread-badge">{{ entry.unread }}</span>
-    {% endif %}
-  </li>
-{% endfor %}
 
             <div class="footer">
                 Chats
